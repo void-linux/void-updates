@@ -30,7 +30,7 @@ init_src() {
 }
 
 update_src() {
-  GIT_WORK_TREE=$src git pull -q
+  GIT_WORK_TREE=$src GIT_DIR=$src/.git git pull -q
 }
 
 find_pkgs() {
