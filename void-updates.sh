@@ -2,22 +2,6 @@
 
 set -e
 
-stamp() {
-  local msg='Void Updates check'
-  local time="$(date +%Y-%m-%d\ %H:%M\ %Z)"
-
-  if [ "$1" ]; then
-    local start=$1
-    local end=$(date +%s)
-
-    msg="$msg ended: $time ($(($end - $start))s)"
-  else
-    msg="$msg started: $time"
-    date +%s
-  fi
-  printf -- '%s\n' "$msg" 1>&2
-}
-
 init_src() {
   if ! [ -d $src/.git ]; then
     mkdir -p $src
@@ -64,19 +48,25 @@ parallel_check() {
 }
 
 create_summary() {
+  local d=$(($end - $start))
+  local t="Void Updates for $(date +%Y-%m-%d\ %H:%M\ %Z) (took: ${d}s)"
   local f m
 
-  for f in $dest/updates_*.txt; do
-    if [ -s $f ]; then
-      m=$(basename ${f%%.txt} | sed 's/updates_//')
+  {
+    printf '%s\n%s\n\n' "$t" $(printf %${#t}s |tr ' ' =)
 
-      printf '%s\n%s\n' $m $(printf %${#m}s |tr ' ' -)
-      sort $f
-      printf -- '\n'
-    else
-      rm -f $f
-    fi
-  done > $dest.txt
+    for f in $dest/updates_*.txt; do
+      if [ -s $f ]; then
+        m=$(basename ${f%%.txt} | sed 's/updates_//')
+
+        printf '%s\n%s\n' $m $(printf %${#m}s |tr ' ' -)
+        sort $f
+        printf -- '\n'
+      else
+        rm -f $f
+      fi
+    done
+  } > $dest.txt
 }
 
 make_current() {
@@ -113,11 +103,11 @@ dest=$out/${name}_$date
 mkdir -p $dest
 
 {
-  start=$(stamp)
+  start=$(date +%s)
   init_src
   update_src
   find_pkgs | add_maintainer | parallel_check
+  end=$(date +%s)
   create_summary
   make_current
-  stamp $start
 } 2> $dest/_log.txt
