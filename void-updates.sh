@@ -71,7 +71,7 @@ create_summary() {
 
 make_current() {
   ln -sf $dest.txt $out/$name.txt
-  ln -sf $dest $out/$name
+  ln -sfn $dest $out/$name
 }
 
 while getopts "p:r:s:o:" opt; do
