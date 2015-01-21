@@ -17,13 +17,20 @@ update_src() {
   GIT_WORK_TREE=$src GIT_DIR=$src/.git git pull -q
 }
 
+is_meta() {
+  (
+    cd $src
+    ./xbps-src show $1 | grep -q '^build_style:[[:blank:]]*meta$'
+  )
+}
+
 find_pkgs() {
   local f p
 
   for f in $src/srcpkgs/*; do
     p=$(basename $f)
 
-    if [ ! -h $f ] && [ -f $f/template ]; then
+    if [ ! -h $f ] && [ -f $f/template ] && ! is_meta $p; then
       printf -- '%s\n' $p
     fi
   done
