@@ -24,13 +24,20 @@ is_meta() {
   )
 }
 
+is_versioned() {
+  case $1 in
+    *-git) return 1;;
+  esac
+  return 0
+}
+
 find_pkgs() {
   local f p
 
   for f in $src/srcpkgs/*; do
     p=$(basename $f)
 
-    if [ ! -h $f ] && [ -f $f/template ] && ! is_meta $p; then
+    if [ ! -h $f ] && [ -f $f/template ] && ! is_meta $p && is_versioned $p; then
       printf -- '%s\n' $p
     fi
   done
