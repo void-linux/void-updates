@@ -57,8 +57,10 @@ add_maintainer() {
 }
 
 parallel_check() {
-  xargs -P20 -L1 /bin/sh -c \
-    "(cd $src && ./xbps-src update-check \$0) >> \$1"
+  xargs -P20 -L1 /bin/sh -c "
+    (cd $src && ./xbps-src update-check \$0) |
+    sed -e \"s|\$0-||g\" -e \"s|^|\$0 |\" >> \$1
+  "
 }
 
 create_summary() {
