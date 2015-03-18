@@ -43,16 +43,25 @@ find_pkgs() {
   done
 }
 
+get_var() {
+  grep ^$2= $src/srcpkgs/$1/template | cut -d= -f2- | tr -d "\"'"
+}
+
 add_maintainer() {
   local p m
   while IFS= read -r p; do
-    m=$(grep ^maintainer= $src/srcpkgs/$p/template |
-      awk -F'<' '{ print $2 }' |
-      tr -d ">\"'" | tr -d ' ')
+    m=$(get_var $p maintainer | awk -F\< '{ print $2 }' | tr -d '> ')
 
     if [ "$m" ]; then
       printf '%s %s\n' $p $dest/updates_$m.txt
     fi
+  done
+}
+
+add_homepage() {
+  local p v
+  while read -r p v; do
+    printf '%s\t%s\t%s\n' $p "$v" "$(get_var $p homepage)"
   done
 }
 
@@ -76,7 +85,7 @@ create_summary() {
         m=$(basename ${f%%.txt} | sed 's/updates_//')
 
         printf '%s\n%s\n' $m $(printf %${#m}s |tr ' ' -)
-        sort $f
+        sort $f | add_homepage | column -t -s"$(printf '\t')"
         printf -- '\n'
       else
         rm -f $f
