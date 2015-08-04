@@ -58,6 +58,35 @@ add_maintainer() {
   done
 }
 
+get_date() {
+  local f=$1
+  local p=$2
+  local v="$3"
+  local lookback=30
+  local i dt pf
+
+  for i in $(seq $lookback -1 0); do
+    dt=$(date --date="-$i days" +%Y-%m-%d)
+    pf=$out/${name}_$dt/$f
+    [ -f $pf ] || continue
+
+    if fgrep -q "$p $v" $pf; then
+      if [ $lookback -ne $i ]; then
+        printf '%s' $dt
+      fi
+      return 0
+    fi
+  done
+}
+
+add_date() {
+  local f=$1
+  local p v
+  while read -r p v; do
+    printf '%s\t%s\t%s\n' $p "$v" "$(get_date $f $p "$v")"
+  done
+}
+
 add_homepage() {
   local p v
   while read -r p v; do
@@ -85,7 +114,7 @@ create_summary() {
         m=$(basename ${f%%.txt} | sed 's/updates_//')
 
         printf '%s\n%s\n' $m $(printf %${#m}s |tr ' ' -)
-        sort $f | add_homepage | column -t -s"$(printf '\t')"
+        sort $f | add_date $(basename $f) | add_homepage | column -t -s"$(printf '\t')"
         printf -- '\n'
       else
         rm -f $f
