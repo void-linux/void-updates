@@ -102,13 +102,9 @@ parallel_check() {
 }
 
 create_summary() {
-  local d=$(($end - $start))
-  local t="Void Updates for $(date +%Y-%m-%d\ %H:%M\ %Z) (took: ${d}s)"
   local f m
 
   {
-    printf '%s\n%s\n\n' "$t" $(printf %${#t}s |tr ' ' =)
-
     for f in $dest/updates_*.txt; do
       if [ -s $f ]; then
         m=$(basename ${f%%.txt} | sed 's/updates_//')
@@ -121,6 +117,15 @@ create_summary() {
       fi
     done
   } > $dest.txt
+}
+
+create_heading() {
+  local d=$(($end - $start))
+  local t="Void Updates for $(date +%Y-%m-%d\ %H:%M\ %Z) (took: ${d}s)"
+  local s
+  s=$(printf %${#t}s |tr ' ' =)
+
+  sed -e "1s/^/$s\n\n/" -e "1s/^/$t\n/" -i $dest.txt
 }
 
 make_current() {
@@ -161,7 +166,8 @@ mkdir -p $dest
   init_src
   update_src
   find_pkgs | add_maintainer | parallel_check
-  end=$(date +%s)
   create_summary
+  end=$(date +%s)
+  create_heading
   make_current
 } 2> $dest/_log.txt
