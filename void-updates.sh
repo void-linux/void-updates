@@ -24,6 +24,13 @@ is_meta() {
   )
 }
 
+has_distfiles() {
+  (
+    cd $src
+    ./xbps-src show $1 | grep -q '^distfiles:'
+  )
+}
+
 is_versioned() {
   case $1 in
     *-git) return 1;;
@@ -37,7 +44,11 @@ find_pkgs() {
   for f in $src/srcpkgs/*; do
     p=$(basename $f)
 
-    if [ ! -h $f ] && [ -f $f/template ] && ! is_meta $p && is_versioned $p; then
+    if [ ! -h $f ] &&
+      [ -f $f/template ] &&
+      ! is_meta $p &&
+      has_distfiles $p &&
+      is_versioned $p; then
       printf -- '%s\n' $p
     fi
   done
