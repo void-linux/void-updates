@@ -140,8 +140,8 @@ create_heading() {
 }
 
 make_current() {
-  ln -sf $dest.txt $out/$name.txt
-  ln -sfn $dest $out/$name
+  ln -sf $dest.txt $name.txt
+  ln -sfn $dest $name
 }
 
 while getopts "p:r:s:o:" opt; do
