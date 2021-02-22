@@ -7,14 +7,12 @@ init_src() {
     mkdir -p $src
     git clone -q $repo $src
   fi
-
-  if ! [ -d $src/hostdir/binpkgs ]; then
-    (cd $src && ./xbps-src binary-bootstrap)
-  fi
 }
 
 update_src() {
+  printf "updating clone\n"
   GIT_WORK_TREE=$src GIT_DIR=$src/.git git pull -q
+  printf "update complete\n"
 }
 
 is_meta() {
@@ -106,6 +104,7 @@ add_homepage() {
 }
 
 parallel_check() {
+  printf "beginning checks\n"
   xargs -P20 -L1 /bin/sh -c "
     (cd $src && ./xbps-src update-check \$0) |
     sed -e \"s|\$0-||g\" -e \"s|^|\$0 |\" >> \$1
