@@ -8,4 +8,6 @@ COPY entrypoint.sh /entrypoint
 ENV XBPS_ALLOW_CHROOT_BREAKOUT=1
 ENV PARALLELISM=20
 
+LABEL org.opencontainers.image.source https://github.com/void-linux/void-updates
+
 ENTRYPOINT ["/entrypoint"]
