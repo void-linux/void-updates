@@ -105,7 +105,7 @@ add_homepage() {
 
 parallel_check() {
   printf "beginning checks\n"
-  xargs -P20 -L1 /bin/sh -c "
+  xargs -P$procs -L1 /bin/sh -c "
     (cd $src && ./xbps-src update-check \$0) |
     sed -e \"s|\$0-||g\" -e \"s|^|\$0 |\" >> \$1
   "
