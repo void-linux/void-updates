@@ -19,7 +19,7 @@ Usage
    daily:
 
     void-updates -p 20 \
-      -r git://github.com/void-linux/void-packages.git \
+      -r https://github.com/void-linux/void-packages.git \
       -s /var/cache/void-packages \
       -o /srv/http/void-updates
 
