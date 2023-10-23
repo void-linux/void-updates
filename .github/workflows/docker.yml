@@ -21,9 +21,47 @@ jobs:
           password: ${{ secrets.CR_PAT }}
       - name: Set version
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v2
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/void-updates
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest
+            type=raw,value=${{env.RELEASE_VERSION}},priority=1000
+          flavor: latest=false
+          labels: |
+            org.opencontainers.image.authors=Void Linux team and contributors
+            org.opencontainers.image.url=https://voidlinux.org
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.vendor=Void Linux
+            org.opencontainers.image.title=void-updates
+            org.opencontainers.image.description=Update check system for void-packages
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to GCHR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push images
+        id: build_and_push
+        uses: docker/bake-action@v3
         with:
           push: true
-          tags: "ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}"
+          targets: void-updates
+          files: |
+            services/pkg/docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          set: |
+            _common.cache-to=type=gha
+            _common.cache-from=type=gha
