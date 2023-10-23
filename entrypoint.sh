@@ -9,4 +9,4 @@ fi
     -p "$PARALLELISM" \
     -r https://github.com/void-linux/void-packages.git \
     -s /void-packages \
-    -o /void-updates
+    -o "${OUTDIR:-/void-updates}"
