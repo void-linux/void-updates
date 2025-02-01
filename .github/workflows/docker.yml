@@ -49,7 +49,7 @@ jobs:
 
       - name: Build and push images
         id: build_and_push
-        uses: docker/bake-action@v3
+        uses: docker/bake-action@v5
         with:
           push: true
           targets: void-updates
