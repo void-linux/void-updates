@@ -1,6 +1,6 @@
-ARG BASE=ghcr.io/void-linux/void-musl-full:20231003R1
+ARG BASE=ghcr.io/void-linux/void-musl-full:20250616R2
 FROM ${BASE}
-RUN xbps-install -yMu xbps && xbps-install -yMu git bash curl util-linux findutils
+RUN xbps-install -ySu xbps && xbps-install -ySu && xbps-install -ySu git bash curl util-linux findutils
 COPY void-updates.sh /usr/local/bin/void-updates
 COPY entrypoint.sh /entrypoint
 
